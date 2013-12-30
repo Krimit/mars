@@ -11,7 +11,15 @@
 			overflow : hidden;
 		}
 
-
+		#istructions {
+			z-index: 102;
+ 			position: fixed;
+ 			top: 0px;
+ 			left: 10px;
+ 			width: 305px;
+ 			height: 262px;
+ 			overflow: hidden;
+			}
 			
 		#List_panel {
 			z-index: 101;
@@ -89,7 +97,7 @@
 			z-index: 103;
 			position: fixed;
 			padding: 0.5em;
-			right: 10px;
+			left: 10px;
 			bottom: 35px;
 			height: 40px;
 			width:300px;
@@ -175,9 +183,9 @@
 	<div id="Info_panel" class="ui-widget-content ui-corner-all">
 			<ul class='display'></ul>
 	</div>
- 
+ 	
  	<div id="Stat_panel">
- 		<ul class='stat'></ul>
+ 		<ul class='stat'>Rotate mars with W,A,S,D,Q,E. <br> Zoom with K,L.</ul>
  	</div>
 
  	<div id="Gmap_panel">
@@ -952,14 +960,10 @@ function zClick( SEL ) {
 		$('#Info_panel .display').html("")
 
 		
-		$('#Info_panel .display').append("<li class=display'>"+"Hello and welcome! This application displays earthquake data for your viewing pleasure. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Rotate the earth with W,A,S,D. Zoom with K,L. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Mouse over a point to see some info. Click to select/deselect. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"After selecting a few points, click location on list on the right to see more information,including a map. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Information panel can be dragged around."+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Try the different categories to the bottom-left to view a subset of the point. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"alt-Click an item to select items relative to it. "+"</li>")
+		$('#Info_panel .display').append("<li class=display'>"+"Hello and welcome! This application displays mars for your viewing pleasure. "+"</li>")
+		$('#Info_panel .display').append("<li class=display'>"+"Rotate mars with W,A,S,D. Zoom with K,L. "+"</li>")
 		
+		$('#Info_panel .display').append("<li class=display'>"+"Information panel can be dragged around."+"</li>")
 	}
 function initial_rotation() {
 
