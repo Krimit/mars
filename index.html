@@ -191,10 +191,8 @@
 <script>
 
 /*
-	(c)2013 Circles io Corporation - All rights reserved.
-
 	Author: Asher Krim
-
+	Hacked together on December 30th 2013
 */ 
 (function  () {
 
@@ -280,9 +278,13 @@ function init()
 
 	   // var edge = new THREE.Mesh( edgeGeometry, 
 	     //   new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } ) );
-
+		
+		//console.log(clr);
+		//console.log(new THREE.Color().setRGB(clr[0],clr[1],clr[2]));
 	    var edge = new THREE.Mesh( edgeGeometry, 
-	        new THREE.MeshBasicMaterial( { color:new THREE.Color().setRGB(clr[0],clr[1],clr[2]), wireframe: true } ) );
+	      //  new THREE.MeshLambertMaterial( { color:new THREE.Color().setRGB(clr[0],clr[1],clr[2]), wireframe: false } ) );
+	    	  new THREE.MeshLambertMaterial( { color:new THREE.Color().setHex(clr), wireframe: false } ) );
+
 	    
 
 	    edge.rotation = arrow.rotation.clone();
@@ -290,18 +292,6 @@ function init()
 
 	    return edge;
 
-	    /*
-	    //trying to make it work with an image:
-	    var coin1_geo = new THREE.CylinderGeometry( w, w, h, 20, 5, false );
-		var coin1_texture = THREE.ImageUtils.loadTexture("textures/usa.gif");
-		var coin1_mat = new THREE.MeshLambertMaterial({map:coin1_texture});
-		var coin1 = new THREE.Mesh( coin1_geo, coin1_mat );
-		coin1.rotation = arrow.rotation.clone();
-	    coin1.position = new THREE.Vector3().addVectors( pointX, direction.multiplyScalar(0.5) );
-
-		return coin1;
-	    //return edge;
-	    */
 	}
 
 	// Step 1 : Add Scene
@@ -399,25 +389,20 @@ function init()
 	var w = radius*0.01;
 	var h = radius*1.0005;
  
- 	/*
- 	//as a test, try to mark a few known locations
- 	var points = [];
- 	points.push([34.8, 32.0833]); //Tel Aviv
- 	points.push([40.7, -74]); //NY
- 	points.push([51.5, -0.1275]); //London
-	*/
+ 	
 
 	//getting info from data file
 	
 	var points = [];
 	var mag = [];
-	var color = [2,2,4];
+	var color = [Math.random(),Math.random(),Math.random()];
 	var infoArray =[];
 	for (var i=0; i < data.length; i++) {
 		var coords = { 	"LongLetter":data[i].LatLetter, 
 						"Long":data[i].Lat, 
 						"LatLetter":data[i].LongLetter, 
-						"Lat":data[i].Long};
+						"Lat":data[i].Long,
+						"Nationality":data[i].Nationality};
 		points.push(coords);
 		infoArray.push(data[i]);
 
@@ -426,8 +411,16 @@ function init()
 
  	var longDeg, latDeg, wantedX, wantedY, wantedZ, cylinder;
  	for (var i = 0; i < data.length; i++) {
+ 		
  		w = 0.7;//radius*0.01;
 		h = 35;//radius*1.0005;
+ 		var c = 0x00FF00;
+ 		if (points[i]["Nationality"] === "USA") {
+ 			c = 0x0000FF;
+ 		} else {
+ 			c = 0xFF0000;
+ 		}
+		var c = 0x0000FF;
  		latDeg = points[i]["Lat"];
  		if (points[i]["LatLetter"] == "S") {
  			latDeg *= -1;
@@ -462,7 +455,8 @@ function init()
 		//color = [Math.pow(1- 1/mag[i],1.5),(1-mag[i]/10)*((10-mag[i])/10),0];
 
 		//console.log(color);
-		cylinder = cylinderMesh(new THREE.Vector3(wantedX, wantedY, wantedZ), new THREE.Vector3(wantedX*1.01, wantedY*1.01, wantedZ*1.01),w,h,color);
+		
+		cylinder = cylinderMesh(new THREE.Vector3(wantedX, wantedY, wantedZ), new THREE.Vector3(wantedX*1.01, wantedY*1.01, wantedZ*1.01),w,h,c);
 		cylinder.infoObject = infoArray[i];
 		cylinder.flags = {sel: false, spsel: false, hover: false};
 		
@@ -977,47 +971,6 @@ function cursorPositionInCanvas(canvas, event) {
 		magSlideChange([ SEL.infoObject.properties.mag-0.2, SEL.infoObject.properties.mag+0.2 ]);
 
      
-      	
-
-		//if alt selected, find all items with similar mag and display
-
-	//	var inf = {sum: 0, count: 0, avg: function() {return (Math.round(this.sum / this.count*10000)/10000)}};
-	
-		
-		//console.log(earthMesh.children);
-	//	var arr = [];
-	//	if (SEL) {
-		// 	inf = _.chain(earthMesh.children).filter(function(item){ 
-		// 		//console.log(item.infoObject)
-		// 			//item.flags.spsel = true;
-		// 			//inf.count++;
-		// 			//inf.sum += item.infoObject.properties.mag;
-				
-		// 		return (item.infoObject.properties.mag <= SEL.infoObject.properties.mag+variation && item.infoObject.properties.mag >= SEL.infoObject.properties.mag-variation );}).reduce(function(inf,item){ 
-		// 				if (item.id != SEL.id && !item.flags.sel) {//probably redundant, checking flag should be enough
-			  				
-		// 	  				//change color for wanted items
-		// 	  				//color_select_set(item, 0x66FF66); 
-		// 	  			}
-		// 	  			item.flags.spsel = true; //mark this guy
-		// 				inf.count++;
-		// 				inf.sum += item.infoObject.properties.mag;
-  // 						return inf;},inf).value();
-
-		// 	console.log(inf.sum,inf.count,inf.avg())
-		// 	$('#Stat_panel .stat').html("")
-		// 	$('#Stat_panel .stat').append("<li class=display'>"+"number of locations with mag. within "+variation+": "+inf.count+"</li>")
-	 //        $('#Stat_panel .stat').append("<li class=display'>"+"avg magnitude: "+inf.avg()+"</li>")
-	//	 }
-		
-		// //hide nonwanted points	
-		// _.chain(earthMesh.children)
-		// .filter(function(item){
-		// 	return(!item.flags.sel && !item.flags.spsel);
-		// })
-		// .each(function(item){
-		// 		item.visible = false;
-		// })		
 	}
 
 //similar to mag but for radius
@@ -1061,39 +1014,6 @@ function zClick( SEL ) {
 		})	
 	}
 
-
-
-
-	function displayStats() {
-		//can display statistics of selected events.
-		//here just focusing on magnitude
-
-		// var num = SELECTEDLIST.length;
-		// var sum_mag = 0;
-		// var avg_mag = 0;
-
-
-		// for(var i = 0; i < SELECTEDLIST.length; i++) {
-            
-		// 	sum_mag+=SELECTEDLIST[i].infoObject.properties.mag;
-  //       }
-
-  //       avg_mag = sum_mag/num;
-  //       avg_mag = Math.round(avg_mag*10000)/10000;
-
-  		inf = {sum: 0, count: 0, avg: function() {return (Math.round(this.sum / this.count*10000)/10000)}};
-  		inf = _.reduce(earthMesh.children,function(inf,item){ 
-  			//console.log(item);
-  			//console.log(inf);
-  			if (item.flags.sel){
-  			inf.sum+=item.infoObject.properties.mag; 
-  			inf.count++;}
-  			return inf;},inf);
-  		//_.map(SELECTEDLIST,function(obj){})
-
-      //  $('#Stat_panel .stat').html("")
-       // $('#Stat_panel .stat').append("<li class=display'>"+"avg magnitude: "+inf.avg()+"</li>")
-	}
 
 	function displayMinimalInfo(WANTED) {
 
