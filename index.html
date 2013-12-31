@@ -11,7 +11,15 @@
 			overflow : hidden;
 		}
 
-
+		#istructions {
+			z-index: 102;
+ 			position: fixed;
+ 			top: 0px;
+ 			left: 10px;
+ 			width: 305px;
+ 			height: 262px;
+ 			overflow: hidden;
+			}
 			
 		#List_panel {
 			z-index: 101;
@@ -89,7 +97,7 @@
 			z-index: 103;
 			position: fixed;
 			padding: 0.5em;
-			right: 10px;
+			left: 10px;
 			bottom: 35px;
 			height: 40px;
 			width:300px;
@@ -141,7 +149,7 @@
 	</style>
 
 
-	<link rel="stylesheet" href="jquery-ui.css" />
+	<!--link rel="stylesheet" href="jquery-ui.css" /-->
 	<script src="three.js"></script>
 
 	<script src="THREEx.KeyboardState.js"></script>
@@ -175,9 +183,9 @@
 	<div id="Info_panel" class="ui-widget-content ui-corner-all">
 			<ul class='display'></ul>
 	</div>
- 
+ 	
  	<div id="Stat_panel">
- 		<ul class='stat'></ul>
+ 		<ul class='stat'>Rotate mars with W,A,S,D,Q,E. <br> Zoom with K,L.</ul>
  	</div>
 
  	<div id="Gmap_panel">
@@ -212,7 +220,7 @@ var keyboard = new THREEx.KeyboardState();
 var canvas1 = document.getElementById('canvas1') ;
  
 var data = getRemoteData(); //read JSON data
-console.log(data);
+//console.log(data);
 
 var mouse = {x: 0, y: 0},
 	INTERSECTED, SELECTED, SELECTEDLIST = [];
@@ -276,13 +284,8 @@ function init()
 	    //     height, radiusSegments, heightSegments
 	    var edgeGeometry = new THREE.CylinderGeometry( w, w, h, 20, 5, false );
 
-	   // var edge = new THREE.Mesh( edgeGeometry, 
-	     //   new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } ) );
-		
-		//console.log(clr);
-		//console.log(new THREE.Color().setRGB(clr[0],clr[1],clr[2]));
+	
 	    var edge = new THREE.Mesh( edgeGeometry, 
-	      //  new THREE.MeshLambertMaterial( { color:new THREE.Color().setRGB(clr[0],clr[1],clr[2]), wireframe: false } ) );
 	    	  new THREE.MeshLambertMaterial( { color:new THREE.Color().setHex(clr), wireframe: false } ) );
 
 	    
@@ -398,16 +401,32 @@ function init()
 	var color = [Math.random(),Math.random(),Math.random()];
 	var infoArray =[];
 	for (var i=0; i < data.length; i++) {
-		var coords = { 	"LongLetter":data[i].LatLetter, 
-						"Long":data[i].Lat, 
-						"LatLetter":data[i].LongLetter, 
-						"Lat":data[i].Long,
-						"Nationality":data[i].Nationality};
+		var coords = { 	
+			"LongLetter":data[i].LatLetter, 
+			"Long":data[i].Lat, 
+			"LatLetter":data[i].LongLetter, 
+			"Lat":data[i].Long,
+			"Nationality":data[i].Nationality
+		};
+
+		//add these to infoobj
+		var la = data[i]["Lat"];
+ 		if (data[i]["LatLetter"] == "S") {
+ 			la *= -1;
+ 		}
+ 		var lo = data[i]["Long"];
+ 		if (data[i]["LongLetter"] == "W") {
+ 			lo *= -1;
+ 		}
+ 		data[i].coordinates = {}
+ 		data[i].coordinates.Lat = la;
+ 		data[i].coordinates.Lon = lo;
+
+ 						
 		points.push(coords);
 		infoArray.push(data[i]);
 
 	}
-	console.log(points);
 
  	var longDeg, latDeg, wantedX, wantedY, wantedZ, cylinder;
  	for (var i = 0; i < data.length; i++) {
@@ -436,25 +455,6 @@ function init()
     	wantedX = h * Math.sin(latitude) * Math.cos(longitude);
     	wantedY = h * Math.cos(latitude);
     	wantedZ = h * Math.sin(latitude) * Math.sin(longitude);
-
-    //ADDING LINE IN CENTER OF CYLINDER
-  	//	var vGeometry = new THREE.Geometry();
-    //var vector = new THREE.Vector3( wantedX, wantedY, wantedZ);
-    //vGeometry.vertices.push( new THREE.Vertex( vector ));
-    //var vector2 = vector.clone();
-    //vector2.multiplyScalar( 1.2 );
-    //vGeometry.vertices.push( new THREE.Vertex( vector2 ));
-   	//var line = new THREE.Line( vGeometry, new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 3, opacity: 1 } ) );
-    //earthMesh.add(line);	
-
-    //control radius and height of cylinders based on magnitude
-		//w = radius*0.05*0.075*Math.pow(1.3,mag[i]);
-		//h = radius*0.9995 + radius/4*0.075*Math.pow(1.3,mag[i]);
-		//h = radius/4*0.075*Math.pow(1.3,mag[i])*mag[i]/3;
-		//control color using magnitude
-		//color = [Math.pow(1- 1/mag[i],1.5),(1-mag[i]/10)*((10-mag[i])/10),0];
-
-		//console.log(color);
 		
 		cylinder = cylinderMesh(new THREE.Vector3(wantedX, wantedY, wantedZ), new THREE.Vector3(wantedX*1.01, wantedY*1.01, wantedZ*1.01),w,h,c);
 		cylinder.infoObject = infoArray[i];
@@ -464,40 +464,10 @@ function init()
 	
 
 		cylinder.origHex = cylinder.material.color.getHex();
-		//cylinder.origHex = color;
-		//cylinder.origHex = to_rgb(Mathcolor[0], color[1], color[2]);
 		
-		//console.log(new THREE.Vector3(wantedX, wantedY, wantedZ))
 		earthMesh.add(cylinder);
-		//console.log(cylinder);
 
  	}
- 	
-   
- 				/*
-				scene.add( new THREE.AmbientLight( 0x00020 ) );
-
-				var light1 = new THREE.PointLight( 0xff0040, 1, 50 );
-				light1.position.set( 100, 100, 100 );
-				scene.add( light1 );
-
-				var light2 = new THREE.PointLight( 0x0040ff, 1, 50 );
-				light1.position.set( 55, 55, 55 );
-				scene.add( light2 );
-
-				var light3 = new THREE.PointLight( 0x80ff80, 1, 50 );
-				light1.position.set( 100, 100, 100 );
-				scene.add( light3 );
-
-				
-
-				var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-				hemiLight.color.setHSL( 0.6, 1, 0.6 );
-				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-				hemiLight.position.set( 60, 60, 60 );
-				scene.add( hemiLight );
-
-				*/
 
 				//
 				var sun_x = 40;
@@ -732,17 +702,6 @@ function update() {
 		}
 
 			runEff = true;
-			/*if ($('#List_panel ol li.active').length > 0 &&  "select_"+$('#Info_panel .display').attr("id") == $('#List_panel ol li.active').attr("id") ) {
-				var id = $('#List_panel ol li.active').attr("id").split("_")[1];
-				for(var i = 0; i < SELECTEDLIST.length; i++){
-         			if(id == SELECTEDLIST[i].id) {
-         				//console.log("running 1");
-         				displayMaximalInfo(SELECTEDLIST[i]);
-         				//console.log("running 2");
-         				break;
-         			}
-         		}
-      		}*/
 
 
 
@@ -774,32 +733,27 @@ function CheckIfSelected( ITEM ) {
 function GetIndex( LIST ) {
 
 	for(var i = 0; i < LIST.length; i++) {
-		if (INTERSECTED != null && INTERSECTED.id == SELECTEDLIST[i].id) //this intersected is selected
+		if (INTERSECTED != null && INTERSECTED.id == SELECTEDLIST[i].id) { //this intersected is selected
 			return i;
+		}
 	}
 	return -1;	
 }
 
 function cursorPositionInCanvas(canvas, event) {
-	                var x, y;
+    var x, y;
 
-	                canoffset = $(canvas).offset();
-	                x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffset.left);
-	                y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffset.top) + 1;
+    canoffset = $(canvas).offset();
+    x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffset.left);
+    y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffset.top) + 1;
 
-	                return [x,y];
+    return [x,y];
 }
 
 	function onDocumentMouseMove( event ) {
-
-
-		//event.preventDefault();
-
-		//	mouse.x = (cursorPositionInCanvas( renderer.domElement, event )[0]) / $(canvas1).width() * 2 - 1;
-	//	mouse.y = - ((cursorPositionInCanvas( renderer.domElement, event )[1])/ $(canvas1).height()) * 2 + 1;
 		mouse.x = ( (event.clientX) / window.innerWidth ) * 2 - 1;
 		mouse.y = - ( (event.clientY) / (window.innerHeight) ) * 2 + 1;
-		}
+	}
 
 	function onDocumentMouseDown( event ) {
 
@@ -839,63 +793,20 @@ function cursorPositionInCanvas(canvas, event) {
 				//turn off wireframe
 				SELECTED.material.wireframe = !SELECTED.material.wireframe ;
 				SELECTED.material.needsUpdate = true;
-			//	console.log(SELECTED.material);
-				
-				//SELECTEDLIST.push(SELECTED);
+			
 				
 				//set selected flag
 				SELECTED.flags.sel = true;
 
-
-				
-
-				//add selected dot to List_panel
-				//$('#List_panel .dots').append("<li id='dot_"+SELECTED.id+"' class='dot'>"+SELECTED.infoObject.properties.place+"</li>")
-				//display max info on click
 				runEff = true;
-				//$("#List_panel ol li").click( function() {
-				//	$('#List_panel ol li.active').removeClass("active")
-				//	$(this).addClass("active") 
-				//	var id = $(this).attr("id").split("_")[1];
-					
-					//console.log(earthMesh);
-					
-					//find wanted id using _.find
-
-				//	displayMaximalInfo(_.find(earthMesh.children,function(item){ return item.flags.sel && item.id == id;}));
-
-					
-
-
-					// for(var i = 0; i < SELECTEDLIST.length; i++){
-
-     //         			if(id == SELECTEDLIST[i].id) {
-             				
-     //         				displayMaximalInfo(SELECTEDLIST[i]);
-             				
-     //         				break;
-     //         			}
-
-             				
-
-             		//}
-             		
-          		//});
-          		//console.log("runningh 2");
-
-				//display selected dot info in Info_panel
-				//displayMinimalInfo(SELECTED);
+				console.log(SELECTED);
+			//	use this to show googleMaps
+			//	displayMaximalInfo( SELECTED );
 				
-
-				//console.log(SELECTED);
 			}
 			//this object is not selected
 			else if (SELECTED != null)  { //need to remove it from list
 				
-				//console.log('currentHex',SELECTED.currentHex);
-				//console.log('prevHex',SELECTED.prevHex);
-				//console.log('selectHex',SELECTED.selectHex);
-				//console.log('originalhex',SELECTED.origHex);
 				if (SELECTED.flags.spsel) //go back to special color
 					SELECTED.material.color.setHex( SELECTED.currentHex);
 				else //go back to original color
@@ -982,15 +893,6 @@ function zClick( SEL ) {
 		var t1 = SEL.infoObject.geometry.coordinates[0]* Math.PI/180;
 		var r = radius;
     
-
-	//	var inf = {sum: 0, count: 0, avg: function() {return (Math.round(this.sum / this.count*10000)/10000)}};
-	
-		
-		//console.log(earthMesh.children);
-	//	var arr = [];
-
-	//dist = arccos(sin(lat1) · sin(lat2) + cos(lat1) · cos(lat2) · cos(lon1 - lon2)) · R
-		//["geometry"]["coordinates"]long lat
 		_.chain(earthMesh.children)
 		.filter(function(item){ 
 				var n2 = item.infoObject.geometry.coordinates[0]*Math.PI/180;
@@ -1035,28 +937,12 @@ function zClick( SEL ) {
 
 		var date;
 
-	      
-		$('#Info_panel .display').html("")
-		
-
-		$('#Info_panel .display').attr("id","select_dot_"+WANTED.id)
-		
-		
+		console.log(WANTED);
+	
 		if($('#Gmap_panel #gmap').length == 0)
-			$('#Gmap_panel ').append('<iframe id="gmap" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.com/?ie=UTF8&ll='+WANTED.infoObject.geometry.coordinates[1]+','+WANTED.infoObject.geometry.coordinates[0]+'&spn=0.660108,1.264801&t=h&z=8&output=embed"></iframe>')
+			$('#Gmap_panel ').append('<iframe id="gmap" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.com/?ie=UTF8&ll='+WANTED.infoObject.coordinates.Lat+','+WANTED.infoObject.coordinates.Lon+'&spn=0.660108,1.264801&t=h&z=8&output=embed"></iframe>')
 		else
-			$('#Gmap_panel #gmap').prop("src",'http://maps.google.com/?ie=UTF8&ll='+WANTED.infoObject.geometry.coordinates[1]+','+WANTED.infoObject.geometry.coordinates[0]+'&spn=0.660108,1.264801&t=h&z=8&output=embed')
-		
-		$('#Info_panel .display').append("<li class=display'>"+"location: "+WANTED.infoObject.properties.place+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"latitude: "+WANTED.infoObject.geometry.coordinates[1]+ " longitude: "+WANTED.infoObject.geometry.coordinates[0]+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"magnitude: "+WANTED.infoObject.properties.mag+"</li>")
-		date = new Date(WANTED.infoObject.properties.time*1);
-		$('#Info_panel .display').append("<li class=display'>"+"time: "+date+"</li>")
-	//	$('#Info_panel .display').append("<li class=display'>"+"Date: "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()+"</li>")
-	//	$('#Info_panel .display').append("<li class=display'>"+"time: "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()+"</li>")
-		date = new Date(WANTED.infoObject.properties.updated*1);
-		$('#Info_panel .display').append("<li class=display'>"+"updated: "+date+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"url: "+WANTED.infoObject.properties.url+"</li>")
+			$('#Gmap_panel #gmap').prop("src",'http://maps.google.com/?ie=UTF8&ll='+WANTED.infoObject.coordinates.Lat+','+WANTED.infoObject.coordinates.Lon+'&spn=0.660108,1.264801&t=h&z=8&output=embed')
 
 		if (runEff) {
 			//runEffect();
@@ -1074,14 +960,10 @@ function zClick( SEL ) {
 		$('#Info_panel .display').html("")
 
 		
-		$('#Info_panel .display').append("<li class=display'>"+"Hello and welcome! This application displays earthquake data for your viewing pleasure. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Rotate the earth with W,A,S,D. Zoom with K,L. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Mouse over a point to see some info. Click to select/deselect. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"After selecting a few points, click location on list on the right to see more information,including a map. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Information panel can be dragged around."+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"Try the different categories to the bottom-left to view a subset of the point. "+"</li>")
-		$('#Info_panel .display').append("<li class=display'>"+"alt-Click an item to select items relative to it. "+"</li>")
+		$('#Info_panel .display').append("<li class=display'>"+"Hello and welcome! This application displays mars for your viewing pleasure. "+"</li>")
+		$('#Info_panel .display').append("<li class=display'>"+"Rotate mars with W,A,S,D. Zoom with K,L. "+"</li>")
 		
+		$('#Info_panel .display').append("<li class=display'>"+"Information panel can be dragged around."+"</li>")
 	}
 function initial_rotation() {
 
